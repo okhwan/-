@@ -1,0 +1,579 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <windows.h>
+#define MAX_DEQUE_SIZE 1000
+
+typedef int Element;
+struct train { //열차 0번
+	Element waitnum[MAX_DEQUE_SIZE];
+}train;
+struct carousel { //회전목마 1번
+	Element waitnum[MAX_DEQUE_SIZE];
+}carousel;
+struct skybike { //하늘자전거 2번
+	Element waitnum[MAX_DEQUE_SIZE];
+}skybike;
+struct viking { //바이킹 3번
+	Element waitnum[MAX_DEQUE_SIZE];
+}viking;
+struct bumpercar { //범퍼카 4번
+	Element waitnum[MAX_DEQUE_SIZE];
+}bumpercar;
+int front[5];
+int rear[5];
+int count[5] = { 0, };
+
+void error(char* str) {
+	printf("%s\n", str);
+	exit(1);
+}
+void playerr(char* str) { //놀이기구에서 손님이 한 명이라도 있으면 출발해야하기 때문에 error를 통해서 exit로 나가면 안된다.
+	printf("%s\n", str);
+}
+
+void init_queue() { //놀이기구 프로그램의 초기화는 하루에 한 번이라고 가정하고 한 번에 모든 놀이기구의 대기자 순번을 초기화
+	for (int i = 0; i < 5; i++) {
+		front[i] = rear[i] = 0; ;
+
+	}
+}
+
+int is_empty(Element val) {
+	return front[val] == rear[val];
+	 
+}
+int is_full(Element val) {
+	return front[val] == (rear[val] + 1 % MAX_DEQUE_SIZE);
+}
+int size(Element val) {
+	return (rear[val] - front[val] + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+}
+
+void enqueue(Element num, Element val) { // 각 기구의 덱에 대기자 번호 삽입
+	if (is_full(num)) {
+		error("수요 가능 인원을 넘었습니다.");
+	}
+	switch (num) { //각 덱별로 이름이 다르기 때문에 switch문을 활용해서 작성하였습니다..
+	case 0:
+		rear[0] = (rear[0] + 1) % MAX_DEQUE_SIZE;
+		train.waitnum[rear[0]] = val; // 열차의 대기번호 삽입
+		count[0]++;
+		return count[0];
+	case 1:
+		rear[1] = (rear[1] + 1) % MAX_DEQUE_SIZE;
+		carousel.waitnum[rear[1]] = val;
+		count[1]++;
+		return count[1];
+	case 2:
+		rear[2] = (rear[2] + 1) % MAX_DEQUE_SIZE;
+		skybike.waitnum[rear[2]] = val;
+		count[2]++;
+		return count[2];
+	case 3:
+		rear[3] = (rear[3] + 1) % MAX_DEQUE_SIZE;
+		viking.waitnum[rear[3]] = val;
+		count[3]++;
+		return count[3];
+	case 4:
+		rear[4] = (rear[4] + 1) % MAX_DEQUE_SIZE;
+		bumpercar.waitnum[rear[4]] = val;
+		count[4]++;
+		return count[4];
+	}
+	
+}
+
+Element dequeue(Element val, Element num) {
+	if (is_empty(val)) {
+		printf("번이고 \n\n현재 탑승 인원은 %d명 입니다.", num);
+		return -1;
+	}
+	else {
+		switch (val) {
+		case 0:
+			front[0] = (front[0] + 1) % MAX_DEQUE_SIZE;
+			return train.waitnum[front[0]];
+		case 1:
+			front[1] = (front[1] + 1) % MAX_DEQUE_SIZE;
+			return carousel.waitnum[front[1]];
+		case 2:
+			front[2] = (front[2] + 1) % MAX_DEQUE_SIZE;
+			return skybike.waitnum[front[2]];
+		case 3:
+			front[3] = (front[3] + 1) % MAX_DEQUE_SIZE;
+			return viking.waitnum[front[3]];
+		case 4:
+			front[4] = (front[4] + 1) % MAX_DEQUE_SIZE;
+			return bumpercar.waitnum[front[4]];
+		}
+
+	}
+	
+}
+
+Element peek(Element val) {
+	if (is_empty(val)) {
+		error("공백 상태");
+	}
+	switch (val) { 
+	case 0:
+		return train.waitnum[(front[0]+1) % MAX_DEQUE_SIZE];
+	case 1:
+		return carousel.waitnum[(rear[1]) % MAX_DEQUE_SIZE];
+	case 2:
+		return skybike.waitnum[(rear[2]) % MAX_DEQUE_SIZE];
+	case 3:
+		return viking.waitnum[(rear[3]) % MAX_DEQUE_SIZE];
+	case 4:
+		return bumpercar.waitnum[(rear[4]) % MAX_DEQUE_SIZE];
+	}
+}
+
+
+void init_deque() { init_queue(); }
+void add_rear(Element num, Element val) { enqueue(num, val); }
+Element delete_front(Element val, Element num) { return dequeue(val, num); }
+Element get_front(Element val) { return peek(val); }
+
+void add_front(Element num, Element val) {
+	if (is_full(num)) {
+		error("대기자가 포화 상태 입니다.");
+	}
+	switch (num) {
+	case 0:
+		train.waitnum[front[0]] = val;
+		front[0] = (front[0] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		break;
+	case 1:
+		carousel.waitnum[front[1]] = val;
+		front[1] = (front[1] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		break;
+	case 2:
+		skybike.waitnum[front[2]] = val;
+		front[2] = (front[2] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		break;
+	case 3:
+		viking.waitnum[front[3]] = val;
+		front[3] = (front[3] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		break;
+	case 4:
+		bumpercar.waitnum[front[4]] = val;
+		front[4] = (front[4] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		break;
+	}
+	
+}
+
+Element delete_rear(Element val) {
+	int prev;
+	if (is_empty(val)) {
+		error("대기자가 없습니다.");
+	}
+	switch (val) {
+	case 0:
+		prev = rear[0];
+		rear[0] = (rear[0] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		return train.waitnum[prev];
+		break;
+	case 1:
+		prev = rear[1];
+		rear[1] = (rear[1] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		return carousel.waitnum[prev];
+		break;
+	case 2:
+		prev = rear[2];
+		rear[2] = (rear[2] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		return skybike.waitnum[prev];
+		break;
+	case 3:
+		prev = rear[3];
+		rear[3] = (rear[3] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		return viking.waitnum[prev];
+		break;
+	case 4:
+		prev = rear[4];
+		rear[4] = (rear[4] - 1 + MAX_DEQUE_SIZE) % MAX_DEQUE_SIZE;
+		return bumpercar.waitnum[prev];
+		break;
+	}
+
+}
+
+
+void play(Element val) {
+	int num = 0;
+	if (is_empty(val)) {
+		error("현재 대기자가 없어 실행할 수 없습니다.");
+	}
+	switch (val) {
+	case 0:
+		printf("열차 대기 번호 입니다: ");
+		break;
+	case 1:
+		printf("회전목마 대기 번호 입니다: ");
+		break;
+	case 2:
+		printf("하늘자전거 대기 번호 입니다: ");
+		break;
+	case 3:
+		printf("바이킹 대기 번호 입니다: ");
+		break;
+	case 4:
+		printf("범퍼카 대기 번호 입니다: ");
+		break;
+
+	}
+	for (int i = 0; i < 20; i++) {
+		num = delete_front(val, i);
+		if (num == -1) { // 정수가 아니면
+			printf("\n출발합니다. \n\n");
+			system("cls");
+			printf("기구가 운행중이오니 \n\n손님 여러분은 재밌게 즐겨주시길 바랍니다...");
+			clock_t start = clock();
+			switch (val) {
+			case 0:
+				while (1) {
+					if ((clock() - start) / CLOCKS_PER_SEC > 5.0f) {
+						system("cls");
+						printf("열차 운행을 마칩니다...\n");
+						Sleep(2000);
+						system("cls");
+						break;
+					}
+				}
+				break;
+			case 1:
+				while (1) {
+					if ((clock() - start) / CLOCKS_PER_SEC > 7.0f) {
+						system("cls");
+						Sleep(2000);
+						printf("회전목마 운행을 마칩니다...\n");
+						system("cls");
+						break;
+					}
+				}
+				break;
+			case 2:
+				while (1) {
+					if ((clock() - start) / CLOCKS_PER_SEC > 4.0f) {
+						system("cls");
+						Sleep(2000);
+						printf("하늘자전거 운행을 마칩니다...\n");
+						system("cls");
+						break;
+					}
+				}
+				break;
+			case 3:
+				while (1) {
+					if ((clock() - start) / CLOCKS_PER_SEC > 3.0f) {
+						system("cls");
+						Sleep(2000);
+						printf("바이킹 운행을 마칩니다...\n");
+						system("cls");
+						break;
+					}
+				}
+				break;
+			case 4:
+				while (1) {
+					if ((clock() - start) / CLOCKS_PER_SEC > 8.0f) {
+						system("cls");
+						Sleep(2000);
+						printf("범퍼카 운행을 마칩니다...\n");
+						system("cls");
+						break;
+					}
+				}
+				break;
+			}
+			break;
+		}
+		else {
+			printf("%d ", num);
+		}
+	}
+
+	
+
+}
+
+void print_queue(int val) {
+	int i, maxi = rear[val];
+	if (front[val] >= rear[val]) maxi += MAX_DEQUE_SIZE;
+	switch (val) {
+	case 0: {
+		printf("열차 대기 번호: ");
+		for (i = front[0] + 1; i <= maxi; i++)
+			printf("%d ", train.waitnum[i%MAX_DEQUE_SIZE]);
+		printf("번이 존재합니다.\n");
+		break;
+		
+	}
+	case 1: {
+		printf("회전목마 대기 번호: ");
+		for (i = front[1] + 1; i <= maxi; i++)
+			printf("%d ", carousel.waitnum[i%MAX_DEQUE_SIZE]);
+		printf("번이 존재합니다.\n");
+		break;
+		
+	}
+	case 2: {
+		printf("하늘 자전거 대기 번호: ");
+		for (i = front[2] + 1; i <= maxi; i++)
+			printf("%d ", skybike.waitnum[i%MAX_DEQUE_SIZE]);
+		printf("번이 존재합니다.\n");
+		break;
+	}
+	case 3: {
+		printf("바이킹 대기 번호: ");
+		for (i = front[3] + 1; i <= maxi; i++)
+			printf("%d ", viking.waitnum[i%MAX_DEQUE_SIZE]);
+		printf("번이 존재합니다.\n");
+		break;
+	
+	}
+	case 4: {
+		printf("범퍼카 대기 번호: ");
+		for (i = front[4] + 1; i <= maxi; i++)
+			printf("%d ", bumpercar.waitnum[i%MAX_DEQUE_SIZE]);
+		printf("번이 존재합니다.\n");
+		break;
+
+	}
+	default: {
+		printf("존재하지 않는 번호 입니다.");
+		break;
+	}
+
+	}
+	
+}
+
+
+void main() {
+	
+	Element num, ki, num1;
+	Element count, total;
+	Element ride[5] = { 0, };
+	FILE* fp = NULL;
+	Element find_pos;
+	char temp[256], * p;
+	char ctrl[5];
+	char buffer[50];
+		
+	init_deque();
+	SetConsoleTitle(TEXT("놀이기구 대기 관리 프로그램"));
+
+	for (int i = 0; i < 100; i++) {
+		printf("★☆★☆★☆★☆★놀이기구 프로그램★☆★☆★☆★☆★☆\n\n");
+		printf("사용자 : 1번 \n\n관리자 : 2번\n\n");
+		printf("입력 : ");
+		scanf_s("%d", &num);
+		system("cls");
+		if (num == 1) {
+			printf("기구 예약: 1번 \n\n대기번호를 출력: 2번\n\n");
+			printf("입력 : ");
+			scanf_s("%d", &num1);
+			system("cls");
+			if (num1 == 1) {
+				printf("예약하실 기구의 번호를 입력해주세요\n");
+				printf("\n열차: 0\n\n회전목마: 1\n\n하늘자전거: 2\n\n바이킹: 3\n\n범퍼카: 4\n\n");
+				printf("입력 : ");
+				scanf_s("%d", &ki);
+				printf("\n");
+				system("cls");
+				switch (ki) {
+				case 0:
+					ride[0]++;
+					add_rear(ki, ride[0]);
+					printf("본인의 번호는 %d번 입니다.", ride[0]);
+					sprintf(ctrl, "%d", ride[0]-1);
+					if (0 == fopen_s(&fp, "c:\\clog\\train.txt", "r+t")) {
+						while (fgets(temp, 256, fp) != NULL) {
+							p = strstr(temp, ctrl);
+							if (p != NULL) {
+								sprintf(ctrl, "%d", ride[0]);
+								find_pos = strlen(temp) - (p - temp);
+								fseek(fp, (-1) * find_pos, SEEK_CUR);
+								fwrite(ctrl, 1, 1, fp);
+								fseek(fp, find_pos - 4, SEEK_CUR);
+							}
+						}
+						fclose(fp);
+					}
+					break;
+				case 1:
+					ride[1]++;
+					add_rear(ki, ride[1]);
+					printf("본인의 번호는 %d번 입니다.", ride[1]);
+					sprintf(ctrl, "%d", ride[1] - 1);
+					if (0 == fopen_s(&fp, "c:\\clog\\carousel.txt", "r+t")) {
+						while (fgets(temp, 256, fp) != NULL) {
+							p = strstr(temp, ctrl);
+							if (p != NULL) {
+								sprintf(ctrl, "%d", ride[1]);
+								find_pos = strlen(temp) - (p - temp);
+								fseek(fp, (-1) * find_pos, SEEK_CUR);
+								fwrite(ctrl, 1, 1, fp);
+								fseek(fp, find_pos - 4, SEEK_CUR);
+							}
+						}
+						fclose(fp);
+					}
+					break;
+				case 2:
+					ride[2]++;
+					add_rear(ki, ride[2]);
+					printf("본인의 번호는 %d번 입니다.", ride[2]);
+					sprintf(ctrl, "%d", ride[2] - 1);
+					if (0 == fopen_s(&fp, "c:\\clog\\skybike.txt", "r+t")) {
+						while (fgets(temp, 256, fp) != NULL) {
+							p = strstr(temp, ctrl);
+							if (p != NULL) {
+								sprintf(ctrl, "%d", ride[2]);
+								find_pos = strlen(temp) - (p - temp);
+								fseek(fp, (-1) * find_pos, SEEK_CUR);
+								fwrite(ctrl, 1, 1, fp);
+								fseek(fp, find_pos - 4, SEEK_CUR);
+							}
+						}
+						fclose(fp);
+					}
+					break;
+				case 3:
+					ride[3]++;
+					add_rear(ki, ride[3]);
+					printf("본인의 번호는 %d번 입니다.", ride[3]);
+					sprintf(ctrl, "%d", ride[3] - 1);
+					if (0 == fopen_s(&fp, "c:\\clog\\viking.txt", "r+t")) {
+						while (fgets(temp, 256, fp) != NULL) {
+							p = strstr(temp, ctrl);
+							if (p != NULL) {
+								sprintf(ctrl, "%d", ride[3]);
+								find_pos = strlen(temp) - (p - temp);
+								fseek(fp, (-1) * find_pos, SEEK_CUR);
+								fwrite(ctrl, 1, 1, fp);
+								fseek(fp, find_pos - 4, SEEK_CUR);
+							}
+						}
+						fclose(fp);
+					}
+					break;
+				case 4:
+					ride[4]++;
+					add_rear(ki, ride[4]);
+					printf("본인의 번호는 %d번 입니다.", ride[4]);
+					sprintf(ctrl, "%d", ride[4] - 1);
+					if (0 == fopen_s(&fp, "c:\\clog\\bumpercar.txt", "r+t")) {
+						while (fgets(temp, 256, fp) != NULL) {
+							p = strstr(temp, ctrl);
+							if (p != NULL) {
+								sprintf(ctrl, "%d", ride[4]);
+								find_pos = strlen(temp) - (p - temp);
+								fseek(fp, (-1) * find_pos, SEEK_CUR);
+								fwrite(ctrl, 1, 1, fp);
+								fseek(fp, find_pos - 4, SEEK_CUR);
+							}
+						}
+						fclose(fp);
+					}
+					break;
+				}
+				printf("\n정상적으로 번호가 입력되었습니다.\n\n");
+				Sleep(2000);
+				system("cls");
+			}
+			else if (num1 == 2) {
+				printf("출력하실 기구의 번호를 입력해주세요:\n");
+			    printf("\n열차: 0\n\n회전목마: 1\n\n하늘자전거: 2\n\n바이킹: 3\n\n범퍼카: 4\n\n");
+				printf("입력 : ");
+				scanf_s("%d, ", &count);
+				system("cls");
+				print_queue(count);
+				printf("\n\n");
+				Sleep(2000);
+				system("cls");
+			}
+		}
+		else if (num == 2) {
+		printf("기구 실행 : 1 \n\n오늘 기구 총 탑승 인원 출력: 2\n");
+		printf("\n입력: ");
+		scanf_s("%d", &total);
+		system("cls");
+		if (total == 1) {
+			printf("실행할 기구의 번호를 입력해주세요\n");
+			printf("\n열차: 0\n\n회전목마: 1\n\n하늘자전거: 2\n\n바이킹: 3\n\n범퍼카: 4\n\n");
+			printf("입력 : ");
+			scanf_s("%d", &ki);
+			system("cls");
+			play(ki);
+		}
+		else if (total == 2) {
+			printf("출력할 기구의 번호를 입력해주세요\n");
+			printf("\n열차: 0\n\n회전목마: 1\n\n하늘자전거: 2\n\n바이킹: 3\n\n범퍼카: 4\n\n");
+			printf("입력 : ");
+			scanf_s("%d", &ki);
+			system("cls");
+			switch (ki) {
+			case 0: {
+				FILE* fp = fopen("c:\\clog\\train.txt", "r");
+				fgets(buffer, sizeof(buffer), fp);
+				printf("%s\n", buffer);
+				fclose(fp);
+				Sleep(2000);
+				system("cls");
+				break;
+			}
+			case 1: {
+				FILE* fp = fopen("c:\\clog\\carousel.txt", "r");
+				fgets(buffer, sizeof(buffer), fp);
+				printf("%s\n", buffer);
+				fclose(fp);
+				Sleep(2000);
+				system("cls");
+				break;
+			}
+			case 2: {
+				FILE* fp = fopen("c:\\clog\\skybike.txt", "r");
+				fgets(buffer, sizeof(buffer), fp);
+				printf("%s\n", buffer);
+				fclose(fp);
+				Sleep(2000);
+				system("cls");
+				break;
+			}
+			case 3: {
+				FILE* fp = fopen("c:\\clog\\viking.txt", "r");
+				fgets(buffer, sizeof(buffer), fp);
+				printf("%s\n", buffer);
+				fclose(fp);
+				Sleep(2000);
+				system("cls");
+				break;
+			}
+			case 4: {
+				FILE* fp = fopen("c:\\clog\\bumpercar.txt", "r");
+				fgets(buffer, sizeof(buffer), fp);
+				printf("%s\n", buffer);
+				fclose(fp);
+				Sleep(2000);
+				system("cls");
+				break;
+			}
+			}
+
+		}
+		
+
+		}
+		else {
+			printf("정상적인 번호를 입력해주세요");
+		}
+	}
+	fclose(fp);
+	
+}
